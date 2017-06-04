@@ -1,6 +1,7 @@
 package org.moon;
 
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -41,6 +42,7 @@ public class PractiseApplication extends Application<PractiseConfiguration> {
     public void initialize(final Bootstrap<PractiseConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
         bootstrap.addBundle(new MultiPartBundle());
+        bootstrap.addBundle(new AssetsBundle());
 
         // enable swagger for application port
         bootstrap.addBundle(
