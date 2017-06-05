@@ -5,10 +5,10 @@ database:
   driverClass: com.mysql.jdbc.Driver
 
   # the username
-  user: liyue
+  #user: root
 
   # the password
-  password: moon
+  #password: moon
 
   # the JDBC URL
   url: jdbc:mysql://127.0.0.1:3306/test
@@ -33,6 +33,12 @@ database:
 
   # whether or not idle connections should be validated
   checkConnectionWhileIdle: false
+
+# the key needs to match the suffix of the renderer
+viewRendererConfiguration:
+    .ftl:
+        strict_syntax: yes
+        whitespace_stripping: yes
 
 logging:
   level: INFO

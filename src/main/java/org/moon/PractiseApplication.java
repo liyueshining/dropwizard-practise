@@ -5,8 +5,10 @@ import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 import io.paradoxical.dropwizard.swagger.AppSwaggerConfiguration;
 import io.paradoxical.dropwizard.swagger.bundles.SwaggerUIBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -19,10 +21,11 @@ import org.moon.resources.PersonResource;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
+import java.util.Map;
 
 public class PractiseApplication extends Application<PractiseConfiguration> {
 
-    private final HibernateBundle<PractiseConfiguration> hibernate = new HibernateBundle<PractiseConfiguration>(Person.class) {
+    private final HibernateBundle<PractiseConfiguration> hibernateBundle = new HibernateBundle<PractiseConfiguration>(Person.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(PractiseConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -40,9 +43,23 @@ public class PractiseApplication extends Application<PractiseConfiguration> {
 
     @Override
     public void initialize(final Bootstrap<PractiseConfiguration> bootstrap) {
-        bootstrap.addBundle(hibernate);
+        bootstrap.addBundle(hibernateBundle);
         bootstrap.addBundle(new MultiPartBundle());
         bootstrap.addBundle(new AssetsBundle());
+
+        bootstrap.addBundle(new MigrationsBundle<PractiseConfiguration>() {
+            @Override
+            public DataSourceFactory getDataSourceFactory(PractiseConfiguration configuration) {
+                return configuration.getDataSourceFactory();
+            }
+        });
+
+        bootstrap.addBundle(new ViewBundle<PractiseConfiguration>() {
+            @Override
+            public Map<String, Map<String, String>> getViewConfiguration(PractiseConfiguration configuration) {
+                return configuration.getViewRendererConfiguration();
+            }
+        });
 
         // enable swagger for application port
         bootstrap.addBundle(
@@ -69,7 +86,7 @@ public class PractiseApplication extends Application<PractiseConfiguration> {
     @Override
     public void run(final PractiseConfiguration configuration,
                     final Environment environment) {
-        final PersonDAO dao = new PersonDAO(hibernate.getSessionFactory());
+        final PersonDAO dao = new PersonDAO(hibernateBundle.getSessionFactory());
         FileUploadResource uploadResource = new FileUploadResource();
 
         environment.jersey().register(uploadResource);
