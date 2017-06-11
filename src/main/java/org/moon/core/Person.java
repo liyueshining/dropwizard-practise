@@ -16,6 +16,10 @@ import java.util.Objects;
         @NamedQuery(
                 name = "org.moon.core.Person.findAll",
                 query = "SELECT p FROM Person p"
+        ),
+        @NamedQuery(
+                name = "org.moon.core.Person.findByName",
+                query = "SELECT p FROM Person p where p.fullName = :name"
         )
 })
 public class Person {

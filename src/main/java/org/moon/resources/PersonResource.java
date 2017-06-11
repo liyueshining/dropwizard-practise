@@ -7,18 +7,17 @@ import io.swagger.annotations.ApiOperation;
 import org.moon.core.Person;
 import org.moon.db.PersonDAO;
 import org.moon.views.PersonView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-@Path("/people/{personId}")
+@Path("/people")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "dropwizard practise")
 public class PersonResource {
+    private static final Logger logger = LoggerFactory.getLogger(PersonResource.class);
 
     private final PersonDAO peopleDAO;
 
@@ -27,6 +26,7 @@ public class PersonResource {
     }
 
     @GET
+    @Path("/{personId}")
     @UnitOfWork
     @ApiOperation(
             value = "get person by id",
@@ -37,7 +37,19 @@ public class PersonResource {
     }
 
     @GET
-    @Path("/view_freemarker")
+    @Path("/person")
+    @UnitOfWork
+    @ApiOperation(
+            value = "find person by name",
+            response = Person.class
+    )
+    public Person findPeopleByName(@QueryParam("name") String name) {
+        logger.info("name is : " + name);
+        return peopleDAO.findByName(name);
+    }
+
+    @GET
+    @Path("/{personId}/view_freemarker")
     @UnitOfWork
     @Produces(MediaType.TEXT_HTML)
     public PersonView getPersonViewFreemarker(@PathParam("personId") LongParam personId) {
@@ -45,7 +57,7 @@ public class PersonResource {
     }
 
     @GET
-    @Path("/view_mustache")
+    @Path("/{personId}/view_mustache")
     @UnitOfWork
     @Produces(MediaType.TEXT_HTML)
     public PersonView getPersonViewMustache(@PathParam("personId") LongParam personId) {

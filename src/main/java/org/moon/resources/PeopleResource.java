@@ -5,19 +5,17 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.moon.core.Person;
 import org.moon.db.PersonDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 @Path("/people")
-@Produces(MediaType.APPLICATION_JSON)
 @Api(value = "dropwizard practise")
 public class PeopleResource {
+    private static final Logger logger = LoggerFactory.getLogger(PeopleResource.class);
 
     private final PersonDAO peopleDAO;
 
@@ -27,6 +25,7 @@ public class PeopleResource {
 
     @POST
     @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             value = "create person",
             response = Person.class
@@ -37,6 +36,7 @@ public class PeopleResource {
 
     @GET
     @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             value = "get all person",
             response = List.class
@@ -44,6 +44,5 @@ public class PeopleResource {
     public List<Person> listPeople() {
         return peopleDAO.findAll();
     }
-
 }
 
