@@ -15,3 +15,7 @@ To see your applications health enter url `http://localhost:8081/healthcheck`
 ## how to setup a dropwizard project by maven
 
 mvn archetype:generate -DarchetypeGroupId=io.dropwizard.archetypes -DarchetypeArtifactId=java-simple -DarchetypeVersion=1.0.0
+
+## problems to record
+
+when put findByName api into resource PeopleResource.class, error happens, e.g Parameter is not a number.
