@@ -37,3 +37,14 @@ update：
     最常用的属性，第一次加载hibernate时根据model类会自动建立起表的结构（前提是先建立好数据库），以后加载hibernate时根据model类自动更新表结构，即使表结构改变了但表中的行仍然存在不会删除以前的行。要注意的是当部署到服务器后，表结构是不会被马上建立起来的，是要等应用第一次运行起来后才会。
 validate ：
     每次加载hibernate时，验证创建数据库表结构，只会和数据库中的表进行比较，不会创建新表，但是会插入新值。
+
+
+## About WebApplicationException
+
+restful 开发过程中 如果要在返回的信息中包含 具体的错误信息，javax.ws.rs-api库里提供了WebApplicationException, 该类继承自RuntimeException, 包装了Response的类型，和具体错误信息。
+
+ServerErrorException, ClientErrorException 又继承自 WebApplicationException， 分为客户端和服务端错误的异常。
+
+NotFoundException，NotSupportedException 等 又继承自 ClientErrorException， 可以直接使用。
+
+InternalServerErrorException，ServiceUnavailableException等 又继承自 ServerErrorException，可以直接使用。
