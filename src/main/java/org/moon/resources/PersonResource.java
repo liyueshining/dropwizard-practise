@@ -10,6 +10,7 @@ import org.moon.views.PersonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -32,7 +33,7 @@ public class PersonResource {
             value = "get person by id",
             response = Person.class
     )
-    public Person getPerson(@PathParam("personId") LongParam personId) {
+    public Person getPerson(@NotNull @PathParam("personId") LongParam personId) {
         return findSafely(personId.get());
     }
 

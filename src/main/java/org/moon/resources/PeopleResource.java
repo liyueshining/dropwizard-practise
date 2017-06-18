@@ -1,16 +1,23 @@
 package org.moon.resources;
 
+import com.google.common.collect.Maps;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.jaxrs.PATCH;
 import org.moon.core.Person;
 import org.moon.db.PersonDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Path("/people")
 @Api(value = "dropwizard practise")
@@ -32,6 +39,36 @@ public class PeopleResource {
     )
     public Person createPerson(Person person) {
         return peopleDAO.create(person);
+    }
+
+    @PATCH
+    @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "create person by patch",
+            response = Map.class
+    )
+    public void createPersonByPatch(@Suspended final AsyncResponse asyncResponse, final List<Person> persons) {
+        asyncResponse.register((CompletionCallback) throwable -> {
+            if (throwable == null) {
+                for (Person person : persons) {
+                    logger.info("start to create person : " + person.getFullName());
+                    peopleDAO.create(person);
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                logger.info("CompletionCallback-onComplete: ERROR" + throwable.getMessage());
+            }
+        });
+
+        UUID uuid = UUID.randomUUID();
+        Map task = Maps.newHashMap();
+        task.put("taskId", uuid);
+        asyncResponse.resume(task);
     }
 
     @GET
