@@ -61,3 +61,7 @@ InternalServerErrorException，ServiceUnavailableException等 又继承自 Serve
 在JAX-RS的服务器端，实现异步通信包括两个技术点， 一个是资源方法中对AsyncResponse的使用，另一个是对异步通信的CompletionCallback 和 TimeoutHandler接口的实现。
 
 AsyncResponse会在resume()被调用后 执行回调方法，因此 CompletionCallback 和 TimeoutHandler 要在 resume()被调用之前 进行注册。
+
+同步接口 在一个请求中，对数据库的多次操作，只会在请求结束的时候 commit，
+
+异步 接口，是 每次操作 都会commit。

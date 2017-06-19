@@ -38,4 +38,8 @@ public class PersonDAO extends AbstractDAO<Person> {
 
         return uniqueResult(query);
     }
+
+    public void delete(Person person) {
+        this.currentSession().delete(person);
+    }
 }

@@ -41,6 +41,25 @@ public class PeopleResource {
         return peopleDAO.create(person);
     }
 
+    @POST
+    @Path("/test")
+    @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "create person"
+    )
+    public void createPersons(List<Person> persons) {
+        for (Person person : persons) {
+            logger.info("start to create person : " + person.getFullName());
+            peopleDAO.create(person);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @PATCH
     @UnitOfWork
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,6 +99,18 @@ public class PeopleResource {
     )
     public List<Person> listPeople() {
         return peopleDAO.findAll();
+    }
+
+    @DELETE
+    @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "get all person"
+    )
+    public void deleteAllPeople() {
+        for (Person person : peopleDAO.findAll()) {
+            peopleDAO.delete(person);
+        }
     }
 }
 
