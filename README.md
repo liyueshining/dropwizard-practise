@@ -65,3 +65,8 @@ AsyncResponse会在resume()被调用后 执行回调方法，因此 CompletionCa
 同步接口 在一个请求中，对数据库的多次操作，只会在请求结束的时候 commit，
 
 异步 接口，是 每次操作 都会commit。
+
+
+## Hibernate数据保存操作方法的原理对比
+
+http://fantasyyong.iteye.com/blog/146685
