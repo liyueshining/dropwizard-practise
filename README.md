@@ -70,3 +70,25 @@ AsyncResponse会在resume()被调用后 执行回调方法，因此 CompletionCa
 ## Hibernate数据保存操作方法的原理对比
 
 http://fantasyyong.iteye.com/blog/146685
+
+### Hibernate 如何映射多张表
+```java
+private final HibernateBundle<PractiseConfiguration> hibernateBundle = new HibernateBundle<PractiseConfiguration>(Person.class) {
+        @Override
+        public DataSourceFactory getDataSourceFactory(PractiseConfiguration configuration) {
+            return configuration.getDataSourceFactory();
+        }
+    };
+```
+
+上面的代码中 HibernateBundle 的构造期中传入了 Entity类 Person.class, 跟person表对应；
+如果还需要映射另外一个表的话，就要在 HibernateBundle 的构造器中传入相应的Entity类，如：
+
+```java
+private final HibernateBundle<PractiseConfiguration> hibernateBundle = new HibernateBundle<PractiseConfiguration>(Person.class，People.class) {
+        @Override
+        public DataSourceFactory getDataSourceFactory(PractiseConfiguration configuration) {
+            return configuration.getDataSourceFactory();
+        }
+    };
+```
