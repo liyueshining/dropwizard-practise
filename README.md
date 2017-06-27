@@ -92,3 +92,49 @@ private final HibernateBundle<PractiseConfiguration> hibernateBundle = new Hiber
         }
     };
 ```
+
+### retry
+```
+Retrofit retrofit = new Retrofit.Builder()
+                .callFactory(getOkHttpClient())
+                .baseUrl(base_url)
+                .addConverterFactory(JacksonConverterFactory.create())
+                .build();
+
+private OkHttpClient getOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request();
+
+                        // try the request
+                        Response response = chain.proceed(request);
+
+                        int tryCount = 0;
+                        while (!response.isSuccessful() && tryCount < 3) {
+
+                            logger.info("reponse code is: " + response.code());
+                            logger.info("message is: " + response.message());
+
+                            logger.info("intercept", "Request is not successful - " + tryCount);
+
+                            tryCount++;
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                logger.warn(e.getMessage());
+                            }
+
+                            // retry the request
+                            response = chain.proceed(request);
+                        }
+
+                        // otherwise just pass the original response on
+                        return response;
+                    }
+                })
+                .build();
+    }
+    ```
