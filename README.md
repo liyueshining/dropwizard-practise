@@ -138,3 +138,13 @@ private OkHttpClient getOkHttpClient() {
                 .build();
     }
     ```
+
+### java8 time date
+
+```java
+Instant start = Instant.now();
+
+Instant end = Instant.now();
+
+long duration = Duration.between(start, end).getSeconds();
+```

@@ -15,6 +15,8 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -108,9 +110,16 @@ public class PeopleResource {
             value = "get all person"
     )
     public void deleteAllPeople() {
+        Instant start = Instant.now();
         for (Person person : peopleDAO.findAll()) {
             peopleDAO.delete(person);
         }
+
+        Instant end = Instant.now();
+
+        long duration = Duration.between(start, end).getSeconds();
+
+        logger.info("time duration is: " + duration);
     }
 }
 
