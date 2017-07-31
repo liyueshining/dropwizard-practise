@@ -1,6 +1,11 @@
 package org.moon.resources;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +25,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 @Path("/people")
 @Api(value = "dropwizard practise")
@@ -72,15 +79,35 @@ public class PeopleResource {
     public void createPersonByPatch(@Suspended final AsyncResponse asyncResponse, final List<Person> persons) {
         asyncResponse.register((CompletionCallback) throwable -> {
             if (throwable == null) {
+                ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
+                List<ListenableFuture<?>> futures = Lists.newArrayList();
                 for (Person person : persons) {
-                    logger.info("start to create person : " + person.getFullName());
-                    peopleDAO.create(person);
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    ListenableFuture<?> future = executorService.submit(() -> {
+                                logger.info("start to create person : " + person.getFullName());
+                                peopleDAO.create(person);
+                                try {
+                                    Thread.sleep(10000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                    );
+
+                    futures.add(future);
                 }
+
+                ListenableFuture totalFuture = Futures.allAsList(futures);
+
+
+                try {
+                    //wait for futures to complete!
+                    totalFuture.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
             } else {
                 logger.info("CompletionCallback-onComplete: ERROR" + throwable.getMessage());
             }
