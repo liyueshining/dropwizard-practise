@@ -148,3 +148,34 @@ Instant end = Instant.now();
 
 long duration = Duration.between(start, end).getSeconds();
 ```
+
+### 调用上传文件接口的方式
+
+#### 用shell脚本 命令如下：
+
+```shell
+curl -F file=@/home/16.17.30RC01/test-moon.spd "http://10.62.100.169:28052/oki-ms/oki/upload?access-token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhZG1pbiIsInJvbGVzIjpbInVzZXIiXSwiZXhwIjoxNTAwMTAwNTUyMzAyfQ.04bU2jTCAwX457vVjo6Npy17c6sxgEgt8EcPTO3UEgE&name=test-moon.spd&version=v1"
+```
+
+-F 是上传文件的选项，@后面是spd文件的绝对路径   Url 最好是用双引号 引起来。
+
+#### 在高级语言中调用上传文件接口的方式
+
+1. python 
+
+```python
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
+import urllib2
+
+# resigter this poster handle
+register_openers()
+            
+#encode data
+datagen, headers = multipart_encode({"file": open("test-moon.spd", "rb")})
+request = urllib2.Request("http://10.62.100.169:28052/oki-ms/oki/upload?access-token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhZG1pbiIsInJvbGVzIjpbInVzZXIiXSwiZXhwIjoxNTAwMTAwNTUyMzAyfQ.04bU2jTCAwX457vVjo6Npy17c6sxgEgt8EcPTO3UEgE&name=test-moon.spd&version=v1", datagen, headers)
+            
+#upload file and print rsponse
+print urllib2.urlopen(request).read()
+            
+ ```
