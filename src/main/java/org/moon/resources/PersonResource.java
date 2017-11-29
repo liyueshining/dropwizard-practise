@@ -38,6 +38,17 @@ public class PersonResource {
     }
 
     @GET
+    @Path("/test")
+    @UnitOfWork
+    @ApiOperation(
+            value = "test",
+            response = String.class
+    )
+    public String getTest(@HeaderParam("Access-Token") String token) {
+        return token;
+    }
+
+    @GET
     @Path("/person")
     @UnitOfWork
     @ApiOperation(

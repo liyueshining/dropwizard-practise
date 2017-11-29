@@ -137,7 +137,9 @@ private OkHttpClient getOkHttpClient() {
                 })
                 .build();
     }
-    ```
+    
+   ```
+
 
 ### java8 time date
 
@@ -148,3 +150,7 @@ Instant end = Instant.now();
 
 long duration = Duration.between(start, end).getSeconds();
 ```
+
+### Hibernate primary key strategy
+
+http://www.blogjava.net/fancydeepin/archive/2012/10/12/hibernate_annotation_pk_strategy.html
