@@ -22,6 +22,7 @@ public class PersonDAO extends AbstractDAO<Person> {
     }
 
     public Person create(Person person) {
+        logger.info("persist object with dao");
         return persist(person);
     }
 

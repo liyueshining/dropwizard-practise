@@ -15,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.moon.core.Person;
 import org.moon.db.PersonDAO;
+import org.moon.service.PeopleService;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -35,9 +36,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PeopleResourceTest {
     private static final PersonDAO PERSON_DAO = mock(PersonDAO.class);
+    private final static PeopleService service = mock(PeopleService.class);
     @ClassRule
     public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
-            .addResource(new PeopleResource(PERSON_DAO))
+            .addResource(new PeopleResource(PERSON_DAO, service))
             .build();
     @Captor
     private ArgumentCaptor<Person> personCaptor;

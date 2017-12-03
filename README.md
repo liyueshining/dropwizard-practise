@@ -186,4 +186,17 @@ request = urllib2.Request("http://10.62.100.169:28052/oki-ms/oki/upload?access-t
 print urllib2.urlopen(request).read()
             
  ```
+ 
+ ## 同步接口转成异步接口
+ 
+ 被同步转异步的接口缠绕了好几天，今天算是搞清楚了，以前一直纠结于Jersey的AsyncResponse类方式的异步，大部分是比较耗时的get请求。
+ 
+ 我们目前的实现方式应该是polling，发一个post请求给server，server返回一个任务ID，然后根据任务的ID去查询任务的执行进度。
+ 
+ 实际上后台执行任务 只需要起一个线程就可以了，ID返回之后，任务继续执行。跟AsyncResponse没有太大关系，
+ 
+ 异步的问题解决之后，后面遇到的问题是在执行任务的线程中 去做数据库操作时要么提示No Hibernate Session bound to thread，要么是不入库，也没有反应就卡着，在资源类里的方法dropwizard提供了一个UnitOfWork注解来解决hibernate的session和事务，但是在飞资源类里的操作数据库的方法只有这个注解还不行， 官方的说法是可以使用UnitOfWorkAwareProxyFactory，纠结了很久终于知道了这个类该如何使用，如下：
+ PeopleService peopleService = new UnitOfWorkAwareProxyFactory(hibernateBundle).create(PeopleService.class, PersonDAO.class, dao);
+ 
+ 搭配上UnitOfWork注解，数据终于可以正常入库，问题解决！
 

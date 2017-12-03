@@ -12,9 +12,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.jaxrs.PATCH;
 import org.moon.core.Person;
 import org.moon.db.PersonDAO;
+import org.moon.service.PeopleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Path("/people")
 @Api(value = "dropwizard practise")
@@ -34,10 +39,26 @@ public class PeopleResource {
     private static final Logger logger = LoggerFactory.getLogger(PeopleResource.class);
 
     private final PersonDAO peopleDAO;
+    private final PeopleService peopleService;
 
-    public PeopleResource(PersonDAO peopleDAO) {
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    /*private Future<?> futureResult;*/
+
+    public PeopleResource(PersonDAO peopleDAO, PeopleService peopleService) {
         this.peopleDAO = peopleDAO;
+        this.peopleService = peopleService;
     }
+
+    @PreDestroy
+    public void onDestroy() {
+        this.executor.shutdownNow();
+    }
+
+    /*@PostConstruct
+    public void onCreate() {
+        this.executor = Executors.newSingleThreadExecutor();
+    }*/
 
     @POST
     @UnitOfWork
@@ -70,54 +91,23 @@ public class PeopleResource {
     }
 
     @PATCH
-    @UnitOfWork
+    //@UnitOfWork
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             value = "create person by patch",
             response = Map.class
     )
-    public void createPersonByPatch(@Suspended final AsyncResponse asyncResponse, final List<Person> persons) {
-        asyncResponse.register((CompletionCallback) throwable -> {
-            if (throwable == null) {
-                ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
-                List<ListenableFuture<?>> futures = Lists.newArrayList();
-                for (Person person : persons) {
-                    ListenableFuture<?> future = executorService.submit(() -> {
-                                logger.info("start to create person : " + person.getFullName());
-                                peopleDAO.create(person);
-                                try {
-                                    Thread.sleep(10000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                    );
-
-                    futures.add(future);
-                }
-
-                ListenableFuture totalFuture = Futures.allAsList(futures);
-
-
-                try {
-                    //wait for futures to complete!
-                    totalFuture.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                logger.info("CompletionCallback-onComplete: ERROR" + throwable.getMessage());
-            }
-        });
+    public Map createPersonByPatch(final Person person) {
 
         UUID uuid = UUID.randomUUID();
         Map task = Maps.newHashMap();
         task.put("taskId", uuid);
-        asyncResponse.resume(task);
+
+        executor.submit(() -> peopleService.createPerson(person));
+
+        return task;
     }
+
 
     @GET
     @UnitOfWork

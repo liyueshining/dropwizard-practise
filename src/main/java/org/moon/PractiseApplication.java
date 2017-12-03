@@ -5,6 +5,7 @@ import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -17,6 +18,7 @@ import org.moon.db.PersonDAO;
 import org.moon.resources.FileUploadResource;
 import org.moon.resources.PeopleResource;
 import org.moon.resources.PersonResource;
+import org.moon.service.PeopleService;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -87,10 +89,12 @@ public class PractiseApplication extends Application<PractiseConfiguration> {
     public void run(final PractiseConfiguration configuration,
                     final Environment environment) {
         final PersonDAO dao = new PersonDAO(hibernateBundle.getSessionFactory());
+        PeopleService peopleService = new UnitOfWorkAwareProxyFactory(hibernateBundle).create(PeopleService.class, PersonDAO.class, dao);
+        //PeopleService peopleService = new PeopleService(dao);
         FileUploadResource uploadResource = new FileUploadResource();
 
         environment.jersey().register(uploadResource);
-        environment.jersey().register(new PeopleResource(dao));
+        environment.jersey().register(new PeopleResource(dao, peopleService));
         environment.jersey().register(new PersonResource(dao));
 
         // Enable CORS headers
